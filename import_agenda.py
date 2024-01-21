@@ -77,9 +77,9 @@ for row in range (15, sh.nrows):
             "date" : sh.cell(row, 0).value,
             "time_start" : sh.cell(row, 1).value,
             "time_end" : sh.cell(row, 2).value,
-            "title" : sh.cell(row, 4).value,
-            "location" : sh.cell(row, 5).value,
-            "description" : "\"" + sh.cell(row, 6).value + "\""
+            "title" : "%s" % (sh.cell(row, 4).value.replace("'", "''")),
+            "location" : "%s" % (sh.cell(row, 5).value.replace("'", "''")),
+            "description" : "%s" % (sh.cell(row, 6).value.replace("'", "''"))
         })
     elif (sh.cell(row, 3).value.strip() == 'Sub'):
         subsession_id = row
@@ -90,9 +90,9 @@ for row in range (15, sh.nrows):
             "date" : sh.cell(row, 0).value,
             "time_start" : sh.cell(row, 1).value,
             "time_end" : sh.cell(row, 2).value,
-            "title" : sh.cell(row, 4).value,
-            "location" : sh.cell(row, 5).value,
-            "description" : sh.cell(row, 6).value 
+            "title" : "%s" % (sh.cell(row, 4).value.replace("'", "''")),
+            "location" : "%s" % (sh.cell(row, 5).value.replace("'", "''")),
+            "description" : "%s" % (sh.cell(row, 6).value.replace("'", "''"))
         })
     else:
         print('Unable to determine whether the event is a SESSION or a SUBSESSION')
@@ -103,7 +103,7 @@ for row in range (15, sh.nrows):
         event_speakers = sh.cell(row, 7).value.split(';')
         for speaker in event_speakers:
             speakers.insert({
-                "name" : "{speaker.strip()}",
+                "name" : speaker.strip().replace("'", "''"),
                 "session" : currently_session,
                 "session_id": session_id if currently_session else subsession_id ,
                 "parent_id": "" if currently_session else session_id,
