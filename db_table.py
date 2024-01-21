@@ -48,7 +48,8 @@ class db_table:
     #
     def create_table(self):
         # { "id": "integer", "name": "text" } -> "id integer, name text"
-        columns_query_string = ', '.join([ "%s %s" % (k,v) for k,v in self.schema.iteritems() ])
+        # CHANGE: updated iteritems() to items()
+        columns_query_string = ', '.join([ "%s %s" % (k,v) for k,v in self.schema.items() ])
 
         # CREATE TABLE IF NOT EXISTS users (id integer PRIMARY KEY, name text)
         #
