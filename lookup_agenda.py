@@ -29,6 +29,36 @@ else:
 # Different approach for speaker. Grab all rows where speaker name matches. If a row is a 'Session', note the session_id. 
     # Then, go grab all subsessions with the saved session_ids
 
-print(tables.sessions.select())
+sessions = db_table("sessions", { 
+    "id": "integer PRIMARY KEY", 
+    "date": "date", 
+    "time_start": "text", 
+    "time_end": "text", 
+    "title": "text", 
+    "location": "text", 
+    "description": "text"  
+})
+
+subsessions = db_table("subsessions", {
+    "id": "integer PRIMARY KEY",
+    "parent_id" : "integer", 
+    "date": "date", 
+    "time_start": "text",
+    "time_end": "text",
+    "title" : "text",
+    "location" : "text",
+    "description" : "text",  
+})
+
+speakers = db_table("speaker", {   
+    "name": "text", 
+    "session" : "boolean", # true = session, false = subsession 
+    "session_id" : "integer",
+    "parent_id": "integer", # optional field 
+})
+
+# TODO use different approach for speakers
+sessions.select(where={column : input})
+# TODO from the above query, if a subsession has a parent_id that matches an id from the above query, also return that row
 
 # 3. Print the result onto the screen
