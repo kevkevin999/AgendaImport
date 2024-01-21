@@ -115,7 +115,7 @@ class db_table:
         columns_query = ", ".join(item.keys())
         values_query  = ", ".join([ "'%s'" % v for v in item.values()])
         #print(len(item.values()))
-        print(values_query)
+        # print(values_query)
         #print(item["Speakers"])
         # INSERT INTO users(id, name) values (42, John)
         #
