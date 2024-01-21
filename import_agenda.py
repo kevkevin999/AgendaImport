@@ -5,7 +5,6 @@ import sys
 # Library for reading data from an Excel Spreadsheet
 import xlrd
 
-
 # Objective of this file: 
 # Reads data from the Excel spreadsheet (agenda.xls)
 # and populates our database with the data 
@@ -13,6 +12,7 @@ import xlrd
 # (From README)
 # 1. Open an Agenda excel file
 if (len(sys.argv) > 1):
+    # TODO handle incorrect argument values
     agenda = xlrd.open_workbook(sys.argv[1])
     print('Worksheet opened!')
 else:
