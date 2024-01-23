@@ -14,7 +14,6 @@ import xlrd
 if (len(sys.argv) > 1):
     # TODO handle incorrect argument values
     agenda = xlrd.open_workbook(sys.argv[1])
-    print('Worksheet opened!')
 else:
     print('Minimum 1 argement expected')
     sys.exit()
@@ -33,7 +32,8 @@ sessions = db_table("sessions", {
     "time_end": "text", 
     "title": "text", 
     "location": "text", 
-    "description": "text"  
+    "description": "text",
+    "speaker" : "text",
 })
 
 subsessions = db_table("subsessions", {
@@ -45,13 +45,13 @@ subsessions = db_table("subsessions", {
     "title" : "text",
     "location" : "text",
     "description" : "text",  
+    "speaker" : "text",
 })
 
 speakers = db_table("speaker", {   
     "name": "text", 
     "session" : "boolean", # true = session, false = subsession 
     "session_id" : "integer",
-    # "parent_id": "integer", # optional field 
 })
 
 
@@ -68,7 +68,6 @@ currently_session = False
 # For each row starting from row 16
 for row in range (15, sh.nrows):
     # Add data to the correct table
-    # TODO need to account for commas in strings (causing sytax errors for db)
     if (sh.cell(row, 3).value.strip() == 'Session'):
         session_id = row
         currently_session = True
@@ -79,8 +78,9 @@ for row in range (15, sh.nrows):
             "time_end" : sh.cell(row, 2).value,
             "title" : "%s" % (sh.cell(row, 4).value.replace("'", "''")),
             "location" : "%s" % (sh.cell(row, 5).value.replace("'", "''")),
-            "description" : "%s" % (sh.cell(row, 6).value.replace("'", "''"))
-        })
+            "description" : "%s" % (sh.cell(row, 6).value.replace("'", "''")),
+            "speaker" : "%s" % (sh.cell(row, 7).value.replace("'", "''")),        
+            })
         if (sh.cell(row, 7)):
             event_speakers = sh.cell(row, 7).value.split(';')
             for speaker in event_speakers:
@@ -88,7 +88,6 @@ for row in range (15, sh.nrows):
                     "name" : speaker.strip().replace("'", "''"),
                     "session" : True,
                     "session_id": session_id,
-                    # "parent_id": "" if currently_session else session_id,
                 })
     elif (sh.cell(row, 3).value.strip() == 'Sub'):
         subsession_id = row
@@ -101,7 +100,8 @@ for row in range (15, sh.nrows):
             "time_end" : sh.cell(row, 2).value,
             "title" : "%s" % (sh.cell(row, 4).value.replace("'", "''")),
             "location" : "%s" % (sh.cell(row, 5).value.replace("'", "''")),
-            "description" : "%s" % (sh.cell(row, 6).value.replace("'", "''"))
+            "description" : "%s" % (sh.cell(row, 6).value.replace("'", "''")),
+            "speaker" : "%s" % (sh.cell(row, 7).value.replace("'", "''")), 
         })
         if (sh.cell(row, 7)):
             event_speakers = sh.cell(row, 7).value.split(';')
@@ -109,23 +109,22 @@ for row in range (15, sh.nrows):
                 speakers.insert({
                     "name" : speaker.strip().replace("'", "''"),
                     "session" : False,
-                    "session_id": subsession_id ,
-                    # "parent_id": "" if currently_session else session_id,
+                    "session_id": subsession_id,
                 })
     else:
         print('Unable to determine whether the event is a SESSION or a SUBSESSION')
     
     # Add data to the speakers table (if the speaker cell is not empty)
-        # TODO looks like empty speakers are still being added...
     if (sh.cell(row, 7)):
         event_speakers = sh.cell(row, 7).value.split(';')
         for speaker in event_speakers:
-            speakers.insert({
-                "name" : speaker.strip().replace("'", "''"),
-                "session" : currently_session,
-                "session_id": session_id if currently_session else subsession_id ,
-                "parent_id": "" if currently_session else session_id,
-            })
+            if (speaker.strip() != ""):
+                print(speaker)
+                speakers.insert({
+                    "name" : speaker.strip().replace("'", "''"),
+                    "session" : currently_session,
+                    "session_id": session_id if currently_session else subsession_id ,
+                })
 
 sessions.close()
 subsessions.close()
