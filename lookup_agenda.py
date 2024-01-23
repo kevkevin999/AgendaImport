@@ -83,11 +83,18 @@ else:
         values.append(row)
 
     for session_id in session_id_set:
-        result = subsessions.select(where={"parent_id" : session_id}) # TODO only add to values if result != []
-        if result != []:
-            values.apend(result)
+        results = subsessions.select(where={"parent_id" : session_id}) # TODO only add to values if result != []
+        if results != []:
+            for result in results:
+                values.append(result)
 
 
 # 3. Print the result onto the screen
+if (values.count == 0):
+    print('No Results Found')
 for value in values:
-    print(value)
+    print("%s\t%s\t%s\t%s\t%s\t%s" % (value['date'], value['time_start'], value['time_end'], value['title'], value['location'], value['description']))
+
+sessions.close()
+subsessions.close()
+speakers.close()
