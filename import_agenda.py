@@ -31,7 +31,7 @@ else:
 from db_table import db_table
 sessions = db_table("sessions", { 
     "id": "integer PRIMARY KEY", 
-    "date": "date", 
+    "date": "text", 
     "time_start": "text", 
     "time_end": "text", 
     "title": "text", 
@@ -43,7 +43,7 @@ sessions = db_table("sessions", {
 subsessions = db_table("subsessions", {
     "id": "integer PRIMARY KEY",
     "parent_id" : "integer", 
-    "date": "date", 
+    "date": "text", 
     "time_start": "text",
     "time_end": "text",
     "title" : "text",

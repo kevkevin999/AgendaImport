@@ -31,30 +31,31 @@ else:
 
 sessions = db_table("sessions", { 
     "id": "integer PRIMARY KEY", 
-    "date": "date", 
+    "date": "text", 
     "time_start": "text", 
     "time_end": "text", 
     "title": "text", 
     "location": "text", 
-    "description": "text"  
+    "description": "text",
+    "speaker" : "text"
 })
 
 subsessions = db_table("subsessions", {
     "id": "integer PRIMARY KEY",
     "parent_id" : "integer", 
-    "date": "date", 
+    "date": "text", 
     "time_start": "text",
     "time_end": "text",
     "title" : "text",
     "location" : "text",
-    "description" : "text",  
+    "description" : "text", 
+    "speaker" : "text", 
 })
 
 speakers = db_table("speaker", {   
     "name": "text", 
     "session" : "boolean", # true = session, false = subsession 
     "session_id" : "integer",
-    # "parent_id": "integer", # optional field 
 })
 
 # TODO use different approach for speakers
