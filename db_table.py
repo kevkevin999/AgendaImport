@@ -84,7 +84,6 @@ class db_table:
         if where:
             where_query_string = [ "LOWER(%s) = LOWER('%s')" % (k,v) for k,v in where.items() ]
             query             += " WHERE " + ' AND '.join(where_query_string)
-        print(query)
         result = []
         # SELECT id, name FROM users [ WHERE id=42 AND name=John ]
         #

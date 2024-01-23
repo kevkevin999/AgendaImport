@@ -3,32 +3,19 @@
 import sys
 from db_table import db_table
 
-# (from README)
-# 1. Parse the command line arguments to retrieve the conditions that the sessions we are looking for must match.
-# 2 inputs. 1st input must match: {date, time_start, time_end, title, location, description, speaker}, otherwise return an error
-# 2nd input is a custom value
 column_types = {'date', 'time_start', 'time_end', 'title', 'location', 'description', 'speaker'}
-
+# Read stdin and output error messages if necessary
 if (len(sys.argv) == 3):
     column = sys.argv[1].lower()
     input = sys.argv[2].replace("'", "''")
-    print("%s : %s" % (column, input))
     if (column not in column_types):
         print('Argument 1 does not match an existing column')
         sys.exit()
-    
 else:
     print('Exactly 2 arguments expected')
     sys.exit()
 
-# 2. Lookup the data you imported for the matching records
-# Start by looking in the SESSIONS table. Are there any matches here?
-    # if Yes, Save those rows! Then, look in SUBSESSIONs table, 
-    # grab all rows that either match the search criteria or have the same parent_id of a selected session.
-    # if No, proceed to look at SUBSESSIONS 
-# Different approach for speaker. Grab all rows where speaker name matches. If a row is a 'Session', note the session_id. 
-    # Then, go grab all subsessions with the saved session_ids
-
+# Set up Database table schemas
 sessions = db_table("sessions", { 
     "id": "integer PRIMARY KEY", 
     "date": "text", 
@@ -58,10 +45,13 @@ speakers = db_table("speaker", {
     "session_id" : "integer",
 })
 
-# TODO use different approach for speakers
-values = []
+values = [] # Build output with this list
+
+# Handle the data differently depending on whether the column is speaker or not
 if (column == 'speaker'):
     speakers_output = speakers.select(where={"name" : input})
+    # For each speaker entry, search either the session or subsession table 
+    # for the corresponding event details
     for row in speakers_output:
         if (row['session'] == 'True'):
             session_results = sessions.select(where={"id" : row["session_id"]})
@@ -74,9 +64,10 @@ if (column == 'speaker'):
                 result['session'] = 'Subsession'
                 values.append(result)
 else:
-    session_id_set = []
+    session_id_set = [] # Keep track of which sessions have already been selected
+    subsession_id_set = [] 
+
     sessions_output = sessions.select(where={column : input})
-    # if a subsession has a parent_id that matches an id from the above query, also return that row
     for row in sessions_output:
         row['session'] = 'Session'
         values.append(row)
@@ -86,21 +77,25 @@ else:
     for row in subsession_output:
         row['session'] = 'Subsession'
         values.append(row)
+        subsession_id_set.append(row['id'])
 
+    # For each session, (if the subsession has yet to be outputted), output the subsession(s)
     for session_id in session_id_set:
-        results = subsessions.select(where={"parent_id" : session_id}) # TODO only add to values if result != []
+        results = subsessions.select(where={"parent_id" : session_id})
         if results != []:
             for result in results:
-                result['session'] = 'Subsession'
-                values.append(result)
+                if (subsession_id_set.count(result['id']) == 0):
+                    result['session'] = 'Subsession'
+                    values.append(result)
 
 
 # 3. Print the result onto the screen
 if (values.count == 0):
     print('No Results Found')
-# elif (column != "speaker"):
 for value in values:
-    print("%s\t%s\t%s\t%s\t%s\t%s\t%s" % (value['date'], value['time_start'], value['time_end'], value['title'], value['location'], value['description'], value['session']))
+    print("%s\t%s\t%s\t%s\t%s\t%s\t%s" % 
+          (value['date'], value['time_start'], value['time_end'], 
+           value['title'], value['location'], value['description'], value['session']))
 
 
 sessions.close()

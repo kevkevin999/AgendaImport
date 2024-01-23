@@ -4,31 +4,20 @@
 import sys
 # Library for reading data from an Excel Spreadsheet
 import xlrd
+from db_table import db_table
 
-# Objective of this file: 
-# Reads data from the Excel spreadsheet (agenda.xls)
-# and populates our database with the data 
-
-# (From README)
-# 1. Open an Agenda excel file
+# Read stdin and handle stdin input arguments
 if (len(sys.argv) > 1):
-    # TODO handle incorrect argument values
     try:  
         agenda = xlrd.open_workbook(sys.argv[1])
     except FileNotFoundError:
         print("Invalid File Input")
         sys.exit()
 else:
-    print('Minimum 1 argement expected')
+    print('Exactly 1 argument expected')
     sys.exit()
 
-# 2. Design a SQLite Database table schema allowing to store agenda information
-# Table 1: All SESSIONs (each session will have an id, date, time start/end, title, location, description)
-# Table 2: All SUBSESSIONs (each subsession will have same columns as SESSIONs, but also which SESSION the subsession is a child of)
-# Table 3: Speakers (each speaker will be assosciated with a SESSION id - for sessions this is just the id, 
-# but for subsessions, this will be the session id of the parent - and an optional subsession id field and a session/subsession distinction). 
-
-from db_table import db_table
+# Set up SQLite Database table schemas
 sessions = db_table("sessions", { 
     "id": "integer PRIMARY KEY", 
     "date": "text", 
@@ -59,22 +48,16 @@ speakers = db_table("speaker", {
 })
 
 
-# 3. Parse the content of the excel file and store the content in the table you designed
-# While parsing the excel file, keep a running count of the number of sessions counted (id)
-# Each subsession's parent id is equal to the above number
-
-# Open the 'Agenda' sheet
+# Open the first sheet of the agenda (this file will only parse the first sheet)
 sh = agenda.sheet_by_index(0)
 session_id = -1 # Assume the first row is NOT a subsession
 subsession_id = -1
-currently_session = False
 
 # For each row starting from row 16
 for row in range (15, sh.nrows):
     # Add data to the correct table
     if (sh.cell(row, 3).value.strip() == 'Session'):
         session_id = row
-        currently_session = True
         sessions.insert({   
             "id" : str(row), 
             "date" : sh.cell(row, 0).value.strip(),
@@ -85,6 +68,7 @@ for row in range (15, sh.nrows):
             "description" : "%s" % (sh.cell(row, 6).value.replace("'", "''").strip()),
             "speaker" : "%s" % (sh.cell(row, 7).value.replace("'", "''").strip()),        
             })
+        # Handle Speakers table
         if (sh.cell(row, 7)):
             event_speakers = sh.cell(row, 7).value.split(';')
             for speaker in event_speakers:
@@ -95,7 +79,6 @@ for row in range (15, sh.nrows):
                 })
     elif (sh.cell(row, 3).value.strip() == 'Sub'):
         subsession_id = row
-        currently_session = False
         subsessions.insert({   
             "id" : str(subsession_id),
             "parent_id" : str(session_id), 
@@ -107,6 +90,7 @@ for row in range (15, sh.nrows):
             "description" : "%s" % (sh.cell(row, 6).value.replace("'", "''").strip()),
             "speaker" : "%s" % (sh.cell(row, 7).value.replace("'", "''").strip()), 
         })
+        # Handle Speakers table
         if (sh.cell(row, 7)):
             event_speakers = sh.cell(row, 7).value.split(';')
             for speaker in event_speakers:
@@ -119,6 +103,7 @@ for row in range (15, sh.nrows):
         print('Unable to determine whether the event is a SESSION or a SUBSESSION')
 
 print('Done Importing Agenda!')
+
 sessions.close()
 subsessions.close()
 speakers.close()
