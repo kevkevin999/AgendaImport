@@ -13,7 +13,11 @@ import xlrd
 # 1. Open an Agenda excel file
 if (len(sys.argv) > 1):
     # TODO handle incorrect argument values
-    agenda = xlrd.open_workbook(sys.argv[1])
+    try:  
+        agenda = xlrd.open_workbook(sys.argv[1])
+    except FileNotFoundError:
+        print("Invalid File Input")
+        sys.exit()
 else:
     print('Minimum 1 argement expected')
     sys.exit()
@@ -119,7 +123,6 @@ for row in range (15, sh.nrows):
         event_speakers = sh.cell(row, 7).value.split(';')
         for speaker in event_speakers:
             if (speaker.strip() != ""):
-                print(speaker)
                 speakers.insert({
                     "name" : speaker.strip().replace("'", "''"),
                     "session" : currently_session,
