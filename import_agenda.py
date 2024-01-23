@@ -117,17 +117,6 @@ for row in range (15, sh.nrows):
                 })
     else:
         print('Unable to determine whether the event is a SESSION or a SUBSESSION')
-    
-    # Add data to the speakers table (if the speaker cell is not empty)
-    if (sh.cell(row, 7)):
-        event_speakers = sh.cell(row, 7).value.split(';')
-        for speaker in event_speakers:
-            if (speaker.strip() != ""):
-                speakers.insert({
-                    "name" : speaker.strip().replace("'", "''"),
-                    "session" : currently_session,
-                    "session_id": session_id if currently_session else subsession_id ,
-                })
 
 print('Done Importing Agenda!')
 sessions.close()
