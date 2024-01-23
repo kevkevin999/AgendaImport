@@ -77,13 +77,13 @@ for row in range (15, sh.nrows):
         currently_session = True
         sessions.insert({   
             "id" : str(row), 
-            "date" : sh.cell(row, 0).value,
-            "time_start" : sh.cell(row, 1).value,
-            "time_end" : sh.cell(row, 2).value,
-            "title" : "%s" % (sh.cell(row, 4).value.replace("'", "''")),
-            "location" : "%s" % (sh.cell(row, 5).value.replace("'", "''")),
-            "description" : "%s" % (sh.cell(row, 6).value.replace("'", "''")),
-            "speaker" : "%s" % (sh.cell(row, 7).value.replace("'", "''")),        
+            "date" : sh.cell(row, 0).value.strip(),
+            "time_start" : sh.cell(row, 1).value.strip(),
+            "time_end" : sh.cell(row, 2).value.strip(),
+            "title" : "%s" % (sh.cell(row, 4).value.replace("'", "''").strip()),
+            "location" : "%s" % (sh.cell(row, 5).value.replace("'", "''").strip()),
+            "description" : "%s" % (sh.cell(row, 6).value.replace("'", "''").strip()),
+            "speaker" : "%s" % (sh.cell(row, 7).value.replace("'", "''").strip()),        
             })
         if (sh.cell(row, 7)):
             event_speakers = sh.cell(row, 7).value.split(';')
@@ -99,13 +99,13 @@ for row in range (15, sh.nrows):
         subsessions.insert({   
             "id" : str(subsession_id),
             "parent_id" : str(session_id), 
-            "date" : sh.cell(row, 0).value,
-            "time_start" : sh.cell(row, 1).value,
-            "time_end" : sh.cell(row, 2).value,
-            "title" : "%s" % (sh.cell(row, 4).value.replace("'", "''")),
-            "location" : "%s" % (sh.cell(row, 5).value.replace("'", "''")),
-            "description" : "%s" % (sh.cell(row, 6).value.replace("'", "''")),
-            "speaker" : "%s" % (sh.cell(row, 7).value.replace("'", "''")), 
+            "date" : sh.cell(row, 0).value.strip(),
+            "time_start" : sh.cell(row, 1).value.strip(),
+            "time_end" : sh.cell(row, 2).value.strip(),
+            "title" : "%s" % (sh.cell(row, 4).value.replace("'", "''").strip()),
+            "location" : "%s" % (sh.cell(row, 5).value.replace("'", "''").strip()),
+            "description" : "%s" % (sh.cell(row, 6).value.replace("'", "''").strip()),
+            "speaker" : "%s" % (sh.cell(row, 7).value.replace("'", "''").strip()), 
         })
         if (sh.cell(row, 7)):
             event_speakers = sh.cell(row, 7).value.split(';')
@@ -129,6 +129,7 @@ for row in range (15, sh.nrows):
                     "session_id": session_id if currently_session else subsession_id ,
                 })
 
+print('Done Importing Agenda!')
 sessions.close()
 subsessions.close()
 speakers.close()
