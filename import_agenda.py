@@ -51,7 +51,7 @@ speakers = db_table("speaker", {
     "name": "text", 
     "session" : "boolean", # true = session, false = subsession 
     "session_id" : "integer",
-    "parent_id": "integer", # optional field 
+    # "parent_id": "integer", # optional field 
 })
 
 
@@ -81,6 +81,15 @@ for row in range (15, sh.nrows):
             "location" : "%s" % (sh.cell(row, 5).value.replace("'", "''")),
             "description" : "%s" % (sh.cell(row, 6).value.replace("'", "''"))
         })
+        if (sh.cell(row, 7)):
+            event_speakers = sh.cell(row, 7).value.split(';')
+            for speaker in event_speakers:
+                speakers.insert({
+                    "name" : speaker.strip().replace("'", "''"),
+                    "session" : True,
+                    "session_id": session_id,
+                    # "parent_id": "" if currently_session else session_id,
+                })
     elif (sh.cell(row, 3).value.strip() == 'Sub'):
         subsession_id = row
         currently_session = False
@@ -94,6 +103,15 @@ for row in range (15, sh.nrows):
             "location" : "%s" % (sh.cell(row, 5).value.replace("'", "''")),
             "description" : "%s" % (sh.cell(row, 6).value.replace("'", "''"))
         })
+        if (sh.cell(row, 7)):
+            event_speakers = sh.cell(row, 7).value.split(';')
+            for speaker in event_speakers:
+                speakers.insert({
+                    "name" : speaker.strip().replace("'", "''"),
+                    "session" : False,
+                    "session_id": subsession_id ,
+                    # "parent_id": "" if currently_session else session_id,
+                })
     else:
         print('Unable to determine whether the event is a SESSION or a SUBSESSION')
     

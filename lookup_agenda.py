@@ -54,11 +54,40 @@ speakers = db_table("speaker", {
     "name": "text", 
     "session" : "boolean", # true = session, false = subsession 
     "session_id" : "integer",
-    "parent_id": "integer", # optional field 
+    # "parent_id": "integer", # optional field 
 })
 
 # TODO use different approach for speakers
-sessions.select(where={column : input})
-# TODO from the above query, if a subsession has a parent_id that matches an id from the above query, also return that row
+values = []
+if (column == 'speaker'):
+    speakers_output = speakers.select(where={"name" : input})
+    for row in speakers_output:
+        # print(row)
+        if (row['session'] == 'True'):
+            # look in session table
+            print('session')
+            values.append(sessions.select(where={"id" : row["session_id"]}))
+        else:
+            print('subsession')
+            values.append(subsessions.select(where={"id" : row["session_id"]}))
+else:
+    sessions_output = sessions.select(where={column : input})
+    session_id_set = []
+    # if a subsession has a parent_id that matches an id from the above query, also return that row
+    for row in sessions_output:
+        values.append(row)
+        session_id_set.append(row['id'])
+
+    subsession_output = subsessions.select(where={column : input})
+    for row in subsession_output:
+        values.append(row)
+
+    for session_id in session_id_set:
+        result = subsessions.select(where={"parent_id" : session_id}) # TODO only add to values if result != []
+        if result != []:
+            values.apend(result)
+
 
 # 3. Print the result onto the screen
+for value in values:
+    print(value)
