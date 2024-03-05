@@ -1,4 +1,6 @@
-# Whova technical test
+# Whova Technical Test (Solution)
+Whova Technical Test as of January 2024. 
+
 Please read this README carefully as it contains all the details you need to know.
 
 
